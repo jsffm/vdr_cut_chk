@@ -1,0 +1,102 @@
+#! /bin/bash
+
+# Record Schnittmarken
+
+#set -xv
+
+#echo $1
+if [ "$1" != "" ]
+then
+    cd $1
+fi
+
+pwd
+if [ ! -e marks ]
+then
+    echo "No marks"
+    exit
+fi
+if [ -e 001.vdr ]
+then
+    in=001.vdr
+    fmt=vdr
+    index=index.vdr
+    info=info.vdr
+fi
+if [ -e 00001.ts ]
+then
+    in=00001.ts
+    fmt=ts
+    index=index
+    info=info
+    f=$(grep "^F" $info | cut -d ' ' -f 2)
+fi
+if [ "$info" != "" ]
+then
+    sender=$(grep "^C" $info | cut -d ' ' -f 3-)
+    qu=$(grep "^C" $info | cut -d ' ' -f 2)
+    qu=${qu:0:1}
+    echo $sender $qu
+fi
+#echo $fmt
+sum=0
+s1=0
+tag=$(date -u +"%s" -d 0:00:00)
+while read line
+do
+    #echo $line
+    c=$(date -u +"%s" -d $line)
+    c=$(($c-$tag))
+    if [ $s1 -eq 0 ]
+    then
+	c1=$c
+	c2=0
+	s1=1
+    else
+	c2=$c
+	sum=$(($sum+($c2-$c1)))
+	s1=0
+    fi
+done < marks
+du -hL
+#set -x
+size=$(du -kL)
+size=$(echo $size | cut -d ' ' -f 1)
+#exit
+# -rw-r--r-- 1 root root 1152 29. Jan 2010  index.vdr
+if [ "$index" != "" ]
+then
+    si=$(ls -l $index)
+    si=$(echo $si | cut -d ' ' -f 5)
+    if [ "$f" == "50" ]
+    then
+	si=$(($si/2))
+    fi
+    s=$(($si/200))
+else
+    si=0
+    s=1
+fi
+if [ $c2 -eq 0 ]
+then
+    #test=$(date -u +"%s" -d 0:00:00)
+    #echo $test
+    #test=$(($c1-$test))
+    #echo $test
+    sum=$(($sum+($s-$c1)))
+fi
+size2=$(($size*$sum/$s))
+#echo "vor Schnitt"
+l=$(date -u -d @$s "+%T")
+echo "vor Schnitt " $l $size
+#echo "nach Schnitt"
+l=$(date -u -d @$sum "+%T")
+echo "nach Schnitt" $l $size2
+kbit=$((size*8/s))
+echo $kbit "kbit/s"
+#set -xv
+resume=$(cat resume)
+frame=$(echo $resume | cut -d \  -f 2)
+rs=$(($frame/$f))
+echo -n "Resume "
+date -u -d @$rs "+%T"
