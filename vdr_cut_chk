@@ -1,6 +1,6 @@
 #! /bin/bash
 
-# Record Schnittmarken
+# Record Eigenschaften
 
 #set -xv
 
@@ -11,17 +11,13 @@ then
 fi
 
 pwd
-if [ ! -e marks ]
-then
-    echo "No marks"
-    exit
-fi
 if [ -e 001.vdr ]
 then
     in=001.vdr
     fmt=vdr
     index=index.vdr
     info=info.vdr
+    marks=marks.vdr
 fi
 if [ -e 00001.ts ]
 then
@@ -29,7 +25,13 @@ then
     fmt=ts
     index=index
     info=info
+    marks=marks
     f=$(grep "^F" $info | cut -d ' ' -f 2)
+fi
+if [ ! -e $marks ]
+then
+    echo "No marks"
+    exit
 fi
 if [ "$info" != "" ]
 then
@@ -57,7 +59,7 @@ do
 	sum=$(($sum+($c2-$c1)))
 	s1=0
     fi
-done < marks
+done < $marks
 du -hL
 #set -x
 size=$(du -kL)
@@ -94,9 +96,3 @@ l=$(date -u -d @$sum "+%T")
 echo "nach Schnitt" $l $size2
 kbit=$((size*8/s))
 echo $kbit "kbit/s"
-#set -xv
-resume=$(cat resume)
-frame=$(echo $resume | cut -d \  -f 2)
-rs=$(($frame/$f))
-echo -n "Resume "
-date -u -d @$rs "+%T"
