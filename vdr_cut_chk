@@ -1,6 +1,8 @@
 #! /bin/bash
 
-# Record Eigenschaften
+# Record Schnittmarken
+
+# Schnittvorhersage
 
 #set -xv
 
@@ -11,6 +13,11 @@ then
 fi
 
 pwd
+if [ ! -e marks ]
+then
+    echo "No marks"
+    exit
+fi
 if [ -e 001.vdr ]
 then
     in=001.vdr
