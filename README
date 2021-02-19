@@ -1,1 +1,5 @@
 Schnittvorhersage für VDR
+
+reccmds.conf
+
+vdr_cut_chk : &lt;path_to>/vdr_cut_chk
