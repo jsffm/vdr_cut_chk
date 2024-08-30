@@ -51,7 +51,7 @@ fi
 sum=0
 s1=0
 tag=$(date -u +"%s" -d 0:00:00)
-while read line
+while read line _
 do
     #echo $line
     c=$(date -u +"%s" -d $line)
