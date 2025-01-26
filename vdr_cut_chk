@@ -1,7 +1,5 @@
 #! /bin/bash
 
-# Record Schnittmarken
-
 # Schnittvorhersage
 
 #set -xv
@@ -12,7 +10,7 @@ then
     cd $1
 fi
 
-pwd
+#pwd
 if [ ! -e marks ]
 then
     echo "No marks"
@@ -24,7 +22,6 @@ then
     fmt=vdr
     index=index.vdr
     info=info.vdr
-    marks=marks.vdr
 fi
 if [ -e 00001.ts ]
 then
@@ -32,18 +29,14 @@ then
     fmt=ts
     index=index
     info=info
-    marks=marks
-    f=$(grep "^F" $info | cut -d ' ' -f 2)
-fi
-if [ ! -e $marks ]
-then
-    echo "No marks"
-    exit
+    #f=$(grep "^F" $info | cut -d ' ' -f 2)
+    read _ f _ <<< $(grep "^F" $info)
 fi
 if [ "$info" != "" ]
 then
-    sender=$(grep "^C" $info | cut -d ' ' -f 3-)
-    qu=$(grep "^C" $info | cut -d ' ' -f 2)
+    #sender=$(grep "^C" $info | cut -d ' ' -f 3-)
+    #qu=$(grep "^C" $info | cut -d ' ' -f 2)
+    read _ qu sender <<< "$(grep "^C" $info)"
     qu=${qu:0:1}
     echo $sender $qu
 fi
@@ -66,17 +59,19 @@ do
 	sum=$(($sum+($c2-$c1)))
 	s1=0
     fi
-done < $marks
+done < marks
 du -hL
 #set -x
-size=$(du -kL)
-size=$(echo $size | cut -d ' ' -f 1)
+#size=$(du -kL)
+#size=$(echo $size | cut -d ' ' -f 1)
+read size _ <<< $(du -kL)
 #exit
 # -rw-r--r-- 1 root root 1152 29. Jan 2010  index.vdr
 if [ "$index" != "" ]
 then
-    si=$(ls -l $index)
-    si=$(echo $si | cut -d ' ' -f 5)
+    #si=$(ls -l $index)
+    #si=$(echo $si | cut -d ' ' -f 5)
+    read _ _ _ _ si _ <<< $(ls -l $index)
     if [ "$f" == "50" ]
     then
 	si=$(($si/2))
@@ -103,3 +98,34 @@ l=$(date -u -d @$sum "+%T")
 echo "nach Schnitt" $l $size2
 kbit=$((size*8/s))
 echo $kbit "kbit/s"
+#set -xv
+#resume=$(cat resume)
+#frame=$(echo $resume | cut -d \  -f 2)
+#rs=$(($frame/$f))
+#echo -n "Resume "
+#date -u -d @$rs "+%T"
+tscheck=$(grep ^O info)
+tscheck=${tscheck:2}
+[ -e tscheck ] && tscheck=$(cat tscheck)
+[ "$tscheck" != "" ] && echo "tscheck "$tscheck
+#set -x
+v=$(dirname $PWD)
+v=$(basename $v)
+[ ! -e "../../%$v" ] && exit
+v1=$(ls ../../%$v)
+cv="../../%$v/$v1"
+[ ! -e "$cv" ] && exit
+read size _ <<< $(du -kL $cv/)
+    read _ _ _ _ si _ <<< $(ls -l $cv/index)
+    if [ "$f" == "50" ]
+    then
+	si=$(($si/2))
+    fi
+    s=$(($si/200))
+l=$(date -u -d @$s "+%T")
+echo "nach Schnitt" $l $size
+kbit=$((size*8/s))
+echo $kbit "kbit/s"
+tscheck=$(grep ^O $cv/info)
+tscheck=${tscheck:2}
+[ "$tscheck" != "" ] && echo "tscheck "$tscheck
