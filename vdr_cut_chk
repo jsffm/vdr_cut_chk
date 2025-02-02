@@ -22,6 +22,7 @@ then
     fmt=vdr
     index=index.vdr
     info=info.vdr
+    marks=marks.vdr
 fi
 if [ -e 00001.ts ]
 then
@@ -29,6 +30,7 @@ then
     fmt=ts
     index=index
     info=info
+    marks=marks
     #f=$(grep "^F" $info | cut -d ' ' -f 2)
     read _ f _ <<< $(grep "^F" $info)
 fi
@@ -59,7 +61,7 @@ do
 	sum=$(($sum+($c2-$c1)))
 	s1=0
     fi
-done < marks
+done < $marks
 du -hL
 #set -x
 #size=$(du -kL)
